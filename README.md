@@ -112,8 +112,7 @@ backend/
 - When navigating tabs (Home ➔ Live ➔ Sessions), the active tab synchronizes with the URL (`/dashboard?tab=live`) and `localStorage`.
 - When a user presses **F5 (Refresh)** or reloads the browser, the application reads `?tab=live` and re-opens the exact same view seamlessly!
 
-### 3. Dual-Layer Video Auto-Resume (`VideoPlayer.jsx`)
-- **Layer 1 (Instant Local Storage)**: On every 3-second interval, drag, or seek event, the player saves `last_position` to browser `localStorage`. On page refresh, it resumes playback in **0ms**.
+### 3. Auto-Resume (`VideoPlayer.jsx`)
 - **Layer 2 (Cloud Database Sync)**: Simultaneously upserts progress to the Supabase `video_progress` PostgreSQL table in the background.
 
 ### 4. Dark / Light Theme System (`index.css` & `Navbar.jsx`)
