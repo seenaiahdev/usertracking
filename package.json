@@ -2,13 +2,8 @@
   "name": "tracking-user-app",
   "version": "1.0.0",
   "private": true,
-  "description": "Full-stack Video Tracking App",
-  "main": "index.js",
-  "type": "module",
   "scripts": {
     "build": "npm run build --prefix frontend",
-    "start": "node backend/src/index.js",
-    "dev:frontend": "npm run dev --prefix frontend",
-    "dev:backend": "npm run dev --prefix backend"
+    "dev": "npm run dev --prefix frontend"
   }
 }
