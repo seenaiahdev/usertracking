@@ -1,6 +1,7 @@
-// Video player with background watch time tracking and seamless auto-resume
+// Video player with direct Supabase watch time tracking and seamless auto-resume
 import { useRef, useEffect, useState, useCallback } from "react";
-import axiosClient from "../api/axiosClient";
+import supabase from "../supabaseClient";
+import { useAuth } from "../context/AuthContext";
 
 const VIDEO_ID = "live-session-001";
 const VIDEO_SRC = "https://media.w3.org/2010/05/sintel/trailer.mp4";
@@ -8,6 +9,7 @@ const VIDEO_POSTER = "https://media.w3.org/2010/05/sintel/poster.png";
 const SAVE_INTERVAL_MS = 3000;
 
 const VideoPlayer = () => {
+  const { user } = useAuth();
   const videoRef = useRef(null);
   const watchedSecondsRef = useRef(0);
   const lastSaveTimeRef = useRef(Date.now());
@@ -16,30 +18,47 @@ const VideoPlayer = () => {
 
   const [progressLoaded, setProgressLoaded] = useState(false);
 
-  const saveProgress = useCallback(async (currentPosition) => {
-    if (currentPosition === undefined || currentPosition === null) return;
-    try {
-      await axiosClient.post(`/api/progress/${VIDEO_ID}`, {
-        watchedSeconds: watchedSecondsRef.current,
-        lastPosition: currentPosition,
-      });
-      savedPositionRef.current = currentPosition;
-    } catch (err) {
-      console.error("Save progress error:", err.response?.data || err.message);
-    }
-  }, []);
+  const saveProgress = useCallback(
+    async (currentPosition) => {
+      if (!user || currentPosition === undefined || currentPosition === null) return;
+      try {
+        await supabase.from("video_progress").upsert(
+          {
+            user_id: user.id,
+            video_id: VIDEO_ID,
+            watched_seconds: Math.round(watchedSecondsRef.current),
+            last_position: parseFloat(currentPosition),
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "user_id,video_id" }
+        );
+        savedPositionRef.current = currentPosition;
+      } catch (err) {
+        console.error("Save progress error:", err.message);
+      }
+    },
+    [user]
+  );
 
   // Fetch saved position on mount and seek video seamlessly
   useEffect(() => {
     let isMounted = true;
 
     const loadProgress = async () => {
+      if (!user) return;
       try {
-        const { data } = await axiosClient.get(`/api/progress/${VIDEO_ID}`);
+        const { data, error } = await supabase
+          .from("video_progress")
+          .select("watched_seconds, last_position")
+          .eq("user_id", user.id)
+          .eq("video_id", VIDEO_ID)
+          .maybeSingle();
+
+        if (error) throw error;
         if (!isMounted) return;
 
-        const targetPos = data.lastPosition || 0;
-        watchedSecondsRef.current = data.watchedSeconds || 0;
+        const targetPos = data?.last_position ? parseFloat(data.last_position) : 0;
+        watchedSecondsRef.current = data?.watched_seconds ? parseInt(data.watched_seconds, 10) : 0;
         savedPositionRef.current = targetPos;
 
         if (targetPos > 0 && videoRef.current) {
@@ -59,7 +78,7 @@ const VideoPlayer = () => {
           }
         }
       } catch (err) {
-        console.error("Failed to load progress:", err);
+        console.error("Failed to load progress:", err.message);
       } finally {
         if (isMounted) setProgressLoaded(true);
       }
@@ -73,7 +92,7 @@ const VideoPlayer = () => {
         saveProgress(videoRef.current.currentTime);
       }
     };
-  }, [saveProgress]);
+  }, [user, saveProgress]);
 
   // Video event listeners for play, pause, seek, and interval save
   useEffect(() => {

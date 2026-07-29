@@ -1,6 +1,6 @@
-// Sessions view — fetches and displays all class sessions from backend
+// Sessions view — fetches and displays class sessions directly from Supabase database
 import { useEffect, useState } from "react";
-import axiosClient from "../api/axiosClient";
+import supabase from "../supabaseClient";
 import SessionCard from "../components/SessionCard";
 import { EmptyBoxIcon } from "../components/Icons";
 import "../styles/sessionsView.css";
@@ -11,18 +11,35 @@ const SessionsView = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchSessions = async () => {
       try {
-        const { data } = await axiosClient.get("/api/sessions");
-        setSessions(data.sessions || []);
-      } catch {
-        setError("Failed to load sessions. Please try again.");
+        const { data, error: dbError } = await supabase
+          .from("sessions")
+          .select("id, title, description, thumbnail_url, duration_minutes, session_date")
+          .order("session_date", { ascending: false });
+
+        if (dbError) throw dbError;
+
+        if (isMounted) {
+          setSessions(data || []);
+        }
+      } catch (err) {
+        console.error("Failed to load sessions:", err.message);
+        if (isMounted) {
+          setError("Failed to load sessions. Please try again.");
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchSessions();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (

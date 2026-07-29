@@ -1,7 +1,7 @@
-// Welcome home view — greeting with user name, quick action cards, and real-time database stats
+// Welcome home view — greeting with user name, quick action cards, and real-time Supabase stats
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import axiosClient from "../api/axiosClient";
+import supabase from "../supabaseClient";
 import { LiveIcon, SessionsIcon, ArrowRightIcon, ClockIcon } from "../components/Icons";
 import "../styles/homeView.css";
 
@@ -28,12 +28,17 @@ const HomeView = ({ onTabChange }) => {
 
     const fetchHomeStats = async () => {
       try {
-        const { data } = await axiosClient.get("/api/sessions");
+        const { data, error } = await supabase
+          .from("sessions")
+          .select("id");
+
+        if (error) throw error;
+
         if (isMounted) {
-          setSessionCount(data?.sessions?.length || 0);
+          setSessionCount(data?.length || 0);
         }
       } catch (err) {
-        console.error("Error loading sessions count:", err);
+        console.error("Error loading sessions count:", err.message);
       } finally {
         if (isMounted) setLoading(false);
       }
