@@ -1,0 +1,224 @@
+/* Home view — animated welcome screen with gradient greeting and quick action cards */
+
+.home-view {
+  max-width: 900px;
+  width: 100%;
+  animation: viewIn 0.45s var(--t-spring);
+}
+
+@keyframes viewIn {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Greeting ─────────────────────────────────────────── */
+.greeting-section { margin-bottom: 44px; }
+
+.greeting-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  background: var(--accent-glow);
+  border: 1px solid var(--border-glow);
+  padding: 5px 14px;
+  border-radius: 20px;
+}
+
+.greeting-text {
+  font-size: 40px;
+  font-weight: 900;
+  color: var(--text-primary);
+  line-height: 1.15;
+  margin-bottom: 12px;
+  letter-spacing: -0.03em;
+}
+
+.greeting-text span {
+  background: var(--hero-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradientShift 4s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%   { background-position: 0%   50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0%   50%; }
+}
+
+.greeting-sub {
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ── Section Label ────────────────────────────────────── */
+.quick-actions-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+/* ── Quick Action Cards ───────────────────────────────── */
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 44px;
+}
+
+.quick-action-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  text-align: left;
+  width: 100%;
+  transition: transform var(--t-normal), border-color var(--t-normal), box-shadow var(--t-normal), background var(--t-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.quick-action-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(139,92,246,0.06), transparent 60%);
+  opacity: 0;
+  transition: opacity var(--t-normal);
+}
+
+.quick-action-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--border-active);
+  box-shadow: 0 12px 40px rgba(139,92,246,0.18), var(--shadow-glow-sm);
+  background: var(--bg-card-hover);
+}
+
+.quick-action-card:hover::after { opacity: 1; }
+
+.quick-action-card.live:hover {
+  border-color: rgba(244,63,94,0.35);
+  box-shadow: 0 12px 40px rgba(244,63,94,0.15), 0 0 20px rgba(244,63,94,0.1);
+}
+
+.quick-action-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  transition: transform var(--t-spring);
+}
+
+.quick-action-card:hover .quick-action-icon { transform: scale(1.1) rotate(-3deg); }
+
+.quick-action-icon.live-icon {
+  background: rgba(244,63,94,0.12);
+  box-shadow: 0 0 16px rgba(244,63,94,0.15);
+}
+
+.quick-action-icon.sessions-icon {
+  background: var(--accent-glow);
+  box-shadow: 0 0 16px rgba(139,92,246,0.15);
+}
+
+.quick-action-info { flex: 1; }
+
+.quick-action-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 5px;
+}
+
+.quick-action-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.quick-action-arrow {
+  color: var(--text-muted);
+  font-size: 18px;
+  align-self: center;
+  flex-shrink: 0;
+  transition: transform var(--t-spring), color var(--t-fast);
+}
+
+.quick-action-card:hover .quick-action-arrow {
+  transform: translateX(5px);
+  color: var(--accent);
+}
+
+/* ── Stats Cards ──────────────────────────────────────── */
+.stats-section { margin-top: 4px; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: 14px;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px 22px;
+  transition: border-color var(--t-normal), transform var(--t-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent-gradient);
+  opacity: 0;
+  transition: opacity var(--t-normal);
+}
+
+.stat-card:hover {
+  border-color: var(--border-active);
+  transform: translateY(-3px);
+}
+
+.stat-card:hover::before { opacity: 1; }
+
+.stat-card-value {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin-bottom: 5px;
+  letter-spacing: -0.02em;
+  background: var(--hero-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stat-card-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
