@@ -222,3 +222,38 @@
   color: var(--text-muted);
   font-weight: 500;
 }
+
+/* ── Mobile Responsiveness ────────────────────────────── */
+@media (max-width: 640px) {
+  .greeting-text {
+    font-size: 28px;
+  }
+
+  .greeting-sub {
+    font-size: 14px;
+  }
+
+  .quick-actions-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .quick-action-card {
+    padding: 16px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 14px 16px;
+  }
+
+  .stat-card-value {
+    font-size: 22px;
+  }
+}
+

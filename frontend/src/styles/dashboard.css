@@ -339,3 +339,71 @@
   flex-direction: column;
   background: radial-gradient(ellipse 70% 40% at 80% 0%, rgba(139,92,246,0.05) 0%, transparent 60%);
 }
+
+/* ── Mobile & Tablet Responsiveness ──────────────────────── */
+.sidebar-mobile-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 85;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 16px;
+  }
+
+  .navbar-brand-name {
+    font-size: 16px;
+  }
+
+  .user-name {
+    display: none;
+  }
+
+  .user-profile {
+    padding: 4px;
+    border-radius: 50%;
+  }
+
+  .logout-btn-nav span:last-child {
+    display: none;
+  }
+
+  .logout-btn-nav {
+    padding: 8px 10px;
+  }
+
+  .dashboard-body {
+    position: relative;
+  }
+
+  .sidebar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 90;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.7);
+    width: 260px;
+    border-right: 1px solid var(--border-active);
+  }
+
+  .sidebar.collapsed {
+    width: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .main-content {
+    padding: 20px 16px;
+  }
+}
+

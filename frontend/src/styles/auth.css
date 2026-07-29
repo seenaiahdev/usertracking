@@ -265,3 +265,20 @@
   padding: 14px 16px;
   border: 1px solid var(--border);
 }
+
+/* ── Mobile Responsiveness ────────────────────────────── */
+@media (max-width: 480px) {
+  .auth-page {
+    padding: 16px;
+  }
+
+  .auth-card {
+    padding: 28px 20px;
+    border-radius: var(--radius-lg);
+  }
+
+  .auth-title {
+    font-size: 24px;
+  }
+}
+

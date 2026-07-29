@@ -1,8 +1,8 @@
-// Welcome home view — greeting with user name and quick action cards
+// Welcome home view — greeting with user name, quick action cards, and real-time database stats
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import axiosClient from "../api/axiosClient";
-import { LiveIcon, SessionsIcon, ArrowRightIcon, ClockIcon, VideoIcon } from "../components/Icons";
+import { LiveIcon, SessionsIcon, ArrowRightIcon, ClockIcon } from "../components/Icons";
 import "../styles/homeView.css";
 
 const getGreeting = () => {
@@ -14,7 +14,8 @@ const getGreeting = () => {
 
 const HomeView = ({ onTabChange }) => {
   const { user } = useAuth();
-  const [watchedSeconds, setWatchedSeconds] = useState(0);
+  const [sessionCount, setSessionCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   const userName =
     user?.user_metadata?.username ||
@@ -23,22 +24,27 @@ const HomeView = ({ onTabChange }) => {
     "Learner";
 
   useEffect(() => {
-    const fetchProgress = async () => {
+    let isMounted = true;
+
+    const fetchHomeStats = async () => {
       try {
-        const { data } = await axiosClient.get("/api/progress/live-session-001");
-        setWatchedSeconds(data.watchedSeconds || 0);
-      } catch {
-        setWatchedSeconds(0);
+        const { data } = await axiosClient.get("/api/sessions");
+        if (isMounted) {
+          setSessionCount(data?.sessions?.length || 0);
+        }
+      } catch (err) {
+        console.error("Error loading sessions count:", err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
     };
-    fetchProgress();
-  }, []);
 
-  const formatWatched = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    if (mins < 1) return "0 min";
-    return `${mins} min`;
-  };
+    fetchHomeStats();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <div className="home-view">
@@ -97,18 +103,16 @@ const HomeView = ({ onTabChange }) => {
       </div>
 
       <div className="stats-section">
-        <div className="quick-actions-label">Your Progress</div>
+        <div className="quick-actions-label">Your Overview</div>
         <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-card-value">{formatWatched(watchedSeconds)}</div>
-            <div className="stat-card-label">Total Watched</div>
-          </div>
           <div className="stat-card">
             <div className="stat-card-value">1</div>
             <div className="stat-card-label">Live Available</div>
           </div>
           <div className="stat-card">
-            <div className="stat-card-value">5</div>
+            <div className="stat-card-value">
+              {loading ? "..." : sessionCount}
+            </div>
             <div className="stat-card-label">Recorded Sessions</div>
           </div>
         </div>
