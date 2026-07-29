@@ -258,3 +258,42 @@
     font-size: 26px;
   }
 }
+
+/* ── Light Mode Specific Overrides ───────────────────────── */
+[data-theme="light"] .greeting-text {
+  color: #0f172a;
+}
+
+[data-theme="light"] .greeting-sub {
+  color: #475569;
+}
+
+[data-theme="light"] .quick-action-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .quick-action-card:hover {
+  background: #f8fafc;
+  border-color: rgba(139, 92, 246, 0.35);
+  box-shadow: 0 12px 36px rgba(139, 92, 246, 0.12);
+}
+
+[data-theme="light"] .quick-action-title {
+  color: #0f172a;
+}
+
+[data-theme="light"] .quick-action-desc {
+  color: #475569;
+}
+
+[data-theme="light"] .stat-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .stat-card-label {
+  color: #64748b;
+}
+
