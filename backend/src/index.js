@@ -13,7 +13,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
@@ -24,14 +24,18 @@ app.get("/api/health", (req, res) => {
   res.status(200).json({ status: "Server is running" });
 });
 
-app.listen(PORT, async () => {
-  console.log(`✅ Backend running on http://localhost:${PORT}`);
+if (!process.env.VERCEL) {
+  app.listen(PORT, async () => {
+    console.log(`✅ Backend running on http://localhost:${PORT}`);
 
-  const { error } = await supabaseAdmin.from("video_progress").select("id").limit(1);
-  if (error) {
-    console.error("❌ Supabase connection issue:", error.message);
-    console.error("   → Make sure you ran backend/schema.sql in your Supabase SQL editor!");
-  } else {
-    console.log("✅ Supabase connected — tables found.");
-  }
-});
+    const { error } = await supabaseAdmin.from("video_progress").select("id").limit(1);
+    if (error) {
+      console.error("❌ Supabase connection issue:", error.message);
+      console.error("   → Make sure you ran backend/schema.sql in your Supabase SQL editor!");
+    } else {
+      console.log("✅ Supabase connected — tables found.");
+    }
+  });
+}
+
+export default app;
