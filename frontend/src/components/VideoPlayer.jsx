@@ -1,4 +1,4 @@
-// Video player with direct Supabase watch time tracking and seamless auto-resume
+// Video player with dual-layer progress persistence (localStorage fallback + Supabase cloud sync)
 import { useRef, useEffect, useState, useCallback } from "react";
 import supabase from "../supabaseClient";
 import { useAuth } from "../context/AuthContext";
@@ -20,21 +20,37 @@ const VideoPlayer = () => {
 
   const saveProgress = useCallback(
     async (currentPosition) => {
-      if (!user || currentPosition === undefined || currentPosition === null) return;
+      if (currentPosition === undefined || currentPosition === null) return;
+      const numPos = parseFloat(currentPosition) || 0;
+      const numWatched = Math.round(watchedSecondsRef.current);
+
+      // 1. Instant local save as zero-latency fallback
+      try {
+        const localKey = `vpos_${user?.id || "guest"}_${VIDEO_ID}`;
+        localStorage.setItem(
+          localKey,
+          JSON.stringify({ position: numPos, watched: numWatched, timestamp: Date.now() })
+        );
+      } catch {
+        // storage disabled
+      }
+
+      // 2. Sync to Supabase Cloud DB
+      if (!user) return;
       try {
         await supabase.from("video_progress").upsert(
           {
             user_id: user.id,
             video_id: VIDEO_ID,
-            watched_seconds: Math.round(watchedSecondsRef.current),
-            last_position: parseFloat(currentPosition),
+            watched_seconds: numWatched,
+            last_position: numPos,
             updated_at: new Date().toISOString(),
           },
           { onConflict: "user_id,video_id" }
         );
-        savedPositionRef.current = currentPosition;
+        savedPositionRef.current = numPos;
       } catch (err) {
-        console.error("Save progress error:", err.message);
+        console.warn("Cloud save notice:", err.message);
       }
     },
     [user]
@@ -45,43 +61,66 @@ const VideoPlayer = () => {
     let isMounted = true;
 
     const loadProgress = async () => {
-      if (!user) return;
+      let targetPos = 0;
+      let watchedSec = 0;
+
+      // 1. Read instant local storage position
+      const localKey = `vpos_${user?.id || "guest"}_${VIDEO_ID}`;
       try {
-        const { data, error } = await supabase
-          .from("video_progress")
-          .select("watched_seconds, last_position")
-          .eq("user_id", user.id)
-          .eq("video_id", VIDEO_ID)
-          .maybeSingle();
-
-        if (error) throw error;
-        if (!isMounted) return;
-
-        const targetPos = data?.last_position ? parseFloat(data.last_position) : 0;
-        watchedSecondsRef.current = data?.watched_seconds ? parseInt(data.watched_seconds, 10) : 0;
-        savedPositionRef.current = targetPos;
-
-        if (targetPos > 0 && videoRef.current) {
-          const video = videoRef.current;
-
-          const applySeek = () => {
-            if (video && targetPos > 0) {
-              video.currentTime = targetPos;
-            }
-          };
-
-          if (video.readyState >= 1) {
-            applySeek();
-          } else {
-            video.addEventListener("loadedmetadata", applySeek, { once: true });
-            video.addEventListener("canplay", applySeek, { once: true });
-          }
+        const cached = localStorage.getItem(localKey);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          targetPos = parseFloat(parsed.position) || 0;
+          watchedSec = parseInt(parsed.watched, 10) || 0;
         }
-      } catch (err) {
-        console.error("Failed to load progress:", err.message);
-      } finally {
-        if (isMounted) setProgressLoaded(true);
+      } catch {
+        // storage disabled
       }
+
+      // 2. Fetch from Supabase Cloud DB
+      if (user) {
+        try {
+          const { data, error } = await supabase
+            .from("video_progress")
+            .select("watched_seconds, last_position")
+            .eq("user_id", user.id)
+            .eq("video_id", VIDEO_ID)
+            .maybeSingle();
+
+          if (!error && data?.last_position !== undefined && data?.last_position !== null) {
+            const cloudPos = parseFloat(data.last_position);
+            if (cloudPos > 0) targetPos = cloudPos;
+            if (data.watched_seconds) watchedSec = parseInt(data.watched_seconds, 10);
+          }
+        } catch {
+          // fallback to local
+        }
+      }
+
+      if (!isMounted) return;
+
+      watchedSecondsRef.current = watchedSec;
+      savedPositionRef.current = targetPos;
+
+      // 3. Seek video to exact position
+      if (targetPos > 0 && videoRef.current) {
+        const video = videoRef.current;
+
+        const applySeek = () => {
+          if (video && targetPos > 0) {
+            video.currentTime = targetPos;
+          }
+        };
+
+        if (video.readyState >= 1) {
+          applySeek();
+        } else {
+          video.addEventListener("loadedmetadata", applySeek, { once: true });
+          video.addEventListener("canplay", applySeek, { once: true });
+        }
+      }
+
+      if (isMounted) setProgressLoaded(true);
     };
 
     loadProgress();
