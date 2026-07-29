@@ -1,5 +1,6 @@
-// Dashboard page — full layout with Navbar, Sidebar, backdrop overlay for mobile, and dynamic content views
+// Dashboard page — full layout with tab state persistence across browser refreshes via URL params & localStorage
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import HomeView from "../views/HomeView";
@@ -8,10 +9,31 @@ import SessionsView from "../views/SessionsView";
 import "../styles/dashboard.css";
 
 const DashboardPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);
-  const [activeTab, setActiveTab] = useState("home");
 
-  // Auto-close sidebar on mobile when tab changes or window resizes
+  const getInitialTab = () => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam && ["home", "live", "sessions"].includes(tabParam)) {
+      return tabParam;
+    }
+    const savedTab = localStorage.getItem("activeTab");
+    if (savedTab && ["home", "live", "sessions"].includes(savedTab)) {
+      return savedTab;
+    }
+    return "home";
+  };
+
+  const [activeTab, setActiveTab] = useState(getInitialTab);
+
+  // Sync initial tab into URL if missing
+  useEffect(() => {
+    if (!searchParams.get("tab")) {
+      setSearchParams({ tab: activeTab }, { replace: true });
+    }
+  }, []);
+
+  // Auto-close sidebar on mobile when window resizes
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth <= 768) {
@@ -25,8 +47,11 @@ const DashboardPage = () => {
   }, []);
 
   const handleToggleSidebar = () => setSidebarOpen((prev) => !prev);
+
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+    setSearchParams({ tab }, { replace: true });
+    localStorage.setItem("activeTab", tab);
     if (window.innerWidth <= 768) {
       setSidebarOpen(false);
     }

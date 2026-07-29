@@ -1,11 +1,12 @@
-// Signup page — creates a new Supabase user and shows email confirmation screen
+// Signup page — creates a new Supabase user and handles both email confirmation and instant login flows
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import supabase from "../supabaseClient";
 import { LogoIcon, MailIcon } from "../components/Icons";
 import "../styles/auth.css";
 
 const SignupPage = () => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,7 +25,7 @@ const SignupPage = () => {
 
     setLoading(true);
 
-    const { error: authError } = await supabase.auth.signUp({
+    const { data, error: authError } = await supabase.auth.signUp({
       email: email.trim(),
       password,
       options: {
@@ -39,7 +40,13 @@ const SignupPage = () => {
       return;
     }
 
-    setEmailSent(true);
+    // If session exists (Confirm Email is OFF in Supabase) -> go straight to dashboard
+    if (data?.session) {
+      navigate("/dashboard", { replace: true });
+    } else {
+      // If session is null (Confirm Email is ON in Supabase) -> show confirmation card
+      setEmailSent(true);
+    }
   };
 
   if (emailSent) {

@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const logout = async () => {
+    localStorage.removeItem("activeTab");
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);

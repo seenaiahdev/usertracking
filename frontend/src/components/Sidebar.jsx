@@ -1,4 +1,4 @@
-// Collapsible sidebar with vector SVG icons and sleek item design
+// Collapsible sidebar supporting both expanded (text+icon) and collapsed (icon-only mini bar) modes
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { HomeIcon, LiveIcon, SessionsIcon, LogoutIcon } from "./Icons";
@@ -19,7 +19,7 @@ const Sidebar = ({ isOpen, activeTab, onTabChange }) => {
   ];
 
   return (
-    <aside className={`sidebar ${isOpen ? "" : "collapsed"}`} aria-hidden={!isOpen}>
+    <aside className={`sidebar ${isOpen ? "" : "collapsed"}`}>
       <nav className="sidebar-nav">
         <div className="sidebar-label">Menu</div>
 
@@ -30,11 +30,12 @@ const Sidebar = ({ isOpen, activeTab, onTabChange }) => {
             onClick={() => onTabChange(id)}
             id={`sidebar-${id}-btn`}
             aria-label={label}
+            title={label}
           >
             <span className="sidebar-item-icon">
-              <Icon size={19} />
+              <Icon size={20} />
             </span>
-            <span>{label}</span>
+            <span className="sidebar-item-text">{label}</span>
             {showLivePulse && <span className="sidebar-live-dot" />}
           </button>
         ))}
@@ -46,11 +47,12 @@ const Sidebar = ({ isOpen, activeTab, onTabChange }) => {
           onClick={handleLogout}
           id="sidebar-logout-btn"
           aria-label="Logout"
+          title="Logout"
         >
           <span className="sidebar-item-icon">
-            <LogoutIcon size={19} />
+            <LogoutIcon size={20} />
           </span>
-          <span>Logout</span>
+          <span className="sidebar-item-text">Logout</span>
         </button>
       </div>
     </aside>
