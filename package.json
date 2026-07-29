@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "description": "Full-stack Video Tracking App",
-  "main": "backend/src/index.js",
+  "main": "index.js",
+  "type": "module",
   "scripts": {
     "build": "npm run build --prefix frontend",
     "start": "node backend/src/index.js",
