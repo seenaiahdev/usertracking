@@ -1,0 +1,12 @@
+{
+  "name": "tracking-user-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Full-stack Video Tracking App",
+  "scripts": {
+    "build": "npm run build --prefix frontend",
+    "start": "npm run start --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend"
+  }
+}
