@@ -1,11 +1,25 @@
-// Top navigation bar with brand logo SVG, user avatar, and logout action
+// Top navigation bar with brand logo SVG, theme toggle (dark/light), user avatar, and logout action
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { LogoIcon, LogoutIcon } from "./Icons";
+import { LogoIcon, LogoutIcon, SunIcon, MoonIcon } from "./Icons";
 
 const Navbar = ({ sidebarOpen, onToggleSidebar }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("theme") || "dark";
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -43,6 +57,16 @@ const Navbar = ({ sidebarOpen, onToggleSidebar }) => {
       </div>
 
       <div className="navbar-right">
+        <button
+          className="theme-toggle-btn"
+          onClick={toggleTheme}
+          aria-label="Toggle theme"
+          id="theme-toggle-btn"
+          title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+        >
+          {theme === "dark" ? <SunIcon size={18} /> : <MoonIcon size={18} />}
+        </button>
+
         <div className="user-profile">
           <div className="user-avatar" aria-label="User avatar">
             {userInitial}

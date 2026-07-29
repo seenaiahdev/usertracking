@@ -117,6 +117,27 @@
   gap: 12px;
 }
 
+.theme-toggle-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast), transform var(--t-spring);
+}
+
+.theme-toggle-btn:hover {
+  background: var(--accent-glow);
+  color: var(--accent-light);
+  border-color: var(--border-active);
+  transform: rotate(15deg) scale(1.08);
+}
+
+
 .user-profile {
   display: flex;
   align-items: center;
