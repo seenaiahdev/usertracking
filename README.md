@@ -21,7 +21,6 @@ The core feature is **intelligent video progress tracking**: when a user watches
 | **Database & Authentication** | **Supabase (PostgreSQL)** | Auth JWT sessions, user profiles, video progress & class sessions DB |
 | **Styling & Design** | **Vanilla CSS Tokens + Icons.jsx** | Dark/Light theme switching, glassmorphism, responsive drawer, SVG vector icons |
 | **Backend API (Local/Dev)** | **Node.js + Express** | REST API endpoints, JWT auth middleware, admin database operations |
-| **Hosting & CI/CD** | **Vercel** | Automated GitHub deployment, SPA rewrites, Edge CDN delivery |
 
 ---
 
